@@ -384,7 +384,7 @@ Resources:
     Type: "AWS::RDS::DBCluster"
     Properties:
       Engine: "aurora-postgresql"
-      EngineVersion: "13.4"
+      EngineVersion: "16.2"
       DBClusterIdentifier: !Sub "edgedb-${InstanceName}-postgres-cluster"
       DBSubnetGroupName: !Ref "RDSSubnetGroup"
       MasterUsername: "postgres"
