@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: >
-  This template will deploy an EdgeDB instance to ECS and connect it
+  This template will deploy a Gel instance to ECS and connect it
   to Aurora Serverless PostgreSQL Cluster.
 
 # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/parameters-section-structure.html
@@ -12,12 +12,12 @@ Parameters:
     MinLength: 6
 
   DockerImage:
-    Description: "Name and tag of the EdgeDB Docker Image"
+    Description: "Name and tag of the Gel Docker Image"
     Type: String
-    Default: "edgedb/edgedb"
+    Default: "geldata/gel"
 
   InstanceName:
-    Description: "The name of this EdgeDB service stack."
+    Description: "The name of this Gel service stack."
     Type: String
     Default: "project"
     AllowedPattern: '[a-z][0-9a-z-]{1,24}'
@@ -36,7 +36,7 @@ Resources:
       InstanceTenancy: default
       Tags:
         - Key: Name
-          Value: !Sub "edgedb-${InstanceName}-vpc"
+          Value: !Sub "gel-${InstanceName}-vpc"
 
   # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-internetgateway.html
   InternetGateway:
@@ -44,7 +44,7 @@ Resources:
     Properties:
       Tags:
         - Key: Name
-          Value: !Sub "edgedb-${InstanceName}-internet-gateway"
+          Value: !Sub "gel-${InstanceName}-internet-gateway"
 
   # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-vpc-gateway-attachment.html
   VPCGatewayAttachment:
@@ -65,7 +65,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: !Sub "edgedb-${InstanceName}-public-network-acl"
+          Value: !Sub "gel-${InstanceName}-public-network-acl"
 
   # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-networkaclentry.html
   NetworkAclEntryInPublicAllowInternet:
@@ -111,7 +111,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: !Sub "edgedb-${InstanceName}-private-network-acl"
+          Value: !Sub "gel-${InstanceName}-private-network-acl"
 
   # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-networkaclentry.html
   NetworkAclEntryInPrivateAllowVPC:
@@ -149,7 +149,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: !Sub "edgedb-${InstanceName}-subnet-a-public"
+          Value: !Sub "gel-${InstanceName}-subnet-a-public"
         - Key: Reach
           Value: public
 
@@ -167,7 +167,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: !Sub "edgedb-${InstanceName}-route-table-a-public"
+          Value: !Sub "gel-${InstanceName}-route-table-a-public"
 
   # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-route.html
   RouteTableAPublicInternetRoute:
@@ -198,7 +198,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: !Sub "edgedb-${InstanceName}-subnet-a-private"
+          Value: !Sub "gel-${InstanceName}-subnet-a-private"
         - Key: Reach
           Value: private
 
@@ -209,7 +209,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: !Sub "edgedb-${InstanceName}-route-table-a-private"
+          Value: !Sub "gel-${InstanceName}-route-table-a-private"
 
   # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-subnet-network-acl-assoc.html
   SubnetNetworkAclAssociationAPrivate:
@@ -239,7 +239,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: !Sub "edgedb-${InstanceName}-subnet-b-public"
+          Value: !Sub "gel-${InstanceName}-subnet-b-public"
         - Key: Reach
           Value: public
 
@@ -257,7 +257,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: !Sub "edgedb-${InstanceName}-route-table-b-public"
+          Value: !Sub "gel-${InstanceName}-route-table-b-public"
 
   # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-route.html
   RouteTableBPublicInternetRoute:
@@ -288,7 +288,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: !Sub "edgedb-${InstanceName}-subnet-b-private"
+          Value: !Sub "gel-${InstanceName}-subnet-b-private"
         - Key: Reach
           Value: private
 
@@ -299,7 +299,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: !Sub "edgedb-${InstanceName}-route-table-b-private"
+          Value: !Sub "gel-${InstanceName}-route-table-b-private"
 
   # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-subnet-network-acl-assoc.html
   SubnetNetworkAclAssociationBPrivate:
@@ -323,7 +323,7 @@ Resources:
   EC2SecurityGroup:
     Type: "AWS::EC2::SecurityGroup"
     Properties:
-      GroupName: !Sub "edgedb-${InstanceName}-ec2-security-group"
+      GroupName: !Sub "gel-${InstanceName}-ec2-security-group"
       GroupDescription: !Sub "Security group to control access to EC2 instances inside the ${InstanceName} stack"
       VpcId: !Ref "VPC"
       SecurityGroupIngress:
@@ -333,7 +333,7 @@ Resources:
           ToPort: 5656
       Tags:
         - Key: "Name"
-          Value: !Sub "edgedb-${InstanceName}-ec2-security-group"
+          Value: !Sub "gel-${InstanceName}-ec2-security-group"
 
   # ---------------------
   # Aurora Security Group
@@ -343,7 +343,7 @@ Resources:
   RDSSecurityGroup:
     Type: "AWS::EC2::SecurityGroup"
     Properties:
-      GroupName: !Sub "edgedb-${InstanceName}-rds-security-group"
+      GroupName: !Sub "gel-${InstanceName}-rds-security-group"
       GroupDescription: !Sub "Security group controlling access to RDS PostgreSQL instance inside the ${InstanceName} stack"
       VpcId: !Ref "VPC"
       SecurityGroupIngress:
@@ -354,14 +354,14 @@ Resources:
 
       Tags:
         - Key: "Name"
-          Value: !Sub "edgedb-${InstanceName}-rds-security-group"
+          Value: !Sub "gel-${InstanceName}-rds-security-group"
 
   # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-rds-dbsubnet-group.html
   RDSSubnetGroup:
     Type: "AWS::RDS::DBSubnetGroup"
     Properties:
-      DBSubnetGroupName: !Sub "edgedb-${InstanceName}-rds-subnet-group"
-      DBSubnetGroupDescription: !Sub "EdgeDB RDS Subnet Group for ${InstanceName}"
+      DBSubnetGroupName: !Sub "gel-${InstanceName}-rds-subnet-group"
+      DBSubnetGroupDescription: !Sub "Gel RDS Subnet Group for ${InstanceName}"
       SubnetIds:
         - !Ref "SubnetAPrivate"
         - !Ref "SubnetBPrivate"
@@ -375,7 +375,7 @@ Resources:
   DBPassword:
     Type: "AWS::SecretsManager::Secret"
     Properties:
-      Name: !Sub "edgedb-${InstanceName}-password"
+      Name: !Sub "gel-${InstanceName}-password"
       SecretString: !Ref SuperUserPassword
 
   # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-rds-dbcluster.html
@@ -385,7 +385,7 @@ Resources:
     Properties:
       Engine: "aurora-postgresql"
       EngineVersion: "16.2"
-      DBClusterIdentifier: !Sub "edgedb-${InstanceName}-postgres-cluster"
+      DBClusterIdentifier: !Sub "gel-${InstanceName}-postgres-cluster"
       DBSubnetGroupName: !Ref "RDSSubnetGroup"
       MasterUsername: "postgres"
       MasterUserPassword: !Ref "SuperUserPassword"
@@ -416,7 +416,7 @@ Resources:
     DependsOn: [AuroraInstanceA, AuroraInstanceB]
     Type: "AWS::SecretsManager::Secret"
     Properties:
-      Name: !Sub "edgedb-${InstanceName}-backend-dsn"
+      Name: !Sub "gel-${InstanceName}-backend-dsn"
       SecretString: !Join [
         "",
         [
@@ -432,14 +432,14 @@ Resources:
       ]
 
   # ------------------
-  # EdgeDB ECS Cluster
+  # Gel ECS Cluster
   # ------------------
 
   # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-role.html
   ExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub "edgedb-${InstanceName}-execution-role"
+      RoleName: !Sub "gel-${InstanceName}-execution-role"
       AssumeRolePolicyDocument:
         Statement:
           - Effect: Allow
@@ -463,7 +463,7 @@ Resources:
   TaskRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub "edgedb-${InstanceName}-task-role"
+      RoleName: !Sub "gel-${InstanceName}-task-role"
       AssumeRolePolicyDocument:
         Statement:
           - Effect: Allow
@@ -475,13 +475,13 @@ Resources:
   LogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub "/ecs/edgedb/${InstanceName}"
+      LogGroupName: !Sub "/ecs/gel/${InstanceName}"
 
   # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ecs-cluster.html
   Cluster:
     Type: AWS::ECS::Cluster
     Properties:
-      ClusterName: !Sub "edgedb-${InstanceName}-server-cluster"
+      ClusterName: !Sub "gel-${InstanceName}-server-cluster"
 
   # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ecs-taskdefinition.html
   TaskDefinition:
@@ -495,7 +495,7 @@ Resources:
       TaskRoleArn: !Ref TaskRole
 
       # These are configurable
-      Family: !Sub "edgedb-${InstanceName}-task-definition"
+      Family: !Sub "gel-${InstanceName}-task-definition"
       Cpu: 1024
       Memory: "2GB"
       ContainerDefinitions:
@@ -503,15 +503,13 @@ Resources:
           Image: !Ref DockerImage
           PortMappings:
             - ContainerPort: 5656
-          Command:
-            - "edgedb-server"
           Environment:
-            - Name: "EDGEDB_SERVER_TLS_CERT_MODE"
+            - Name: "GEL_SERVER_TLS_CERT_MODE"
               Value: "generate_self_signed"
           Secrets:
-            - Name: "EDGEDB_SERVER_PASSWORD"
+            - Name: "GEL_SERVER_PASSWORD"
               ValueFrom: !Ref "DBPassword"
-            - Name: "EDGEDB_SERVER_BACKEND_DSN"
+            - Name: "GEL_SERVER_BACKEND_DSN"
               ValueFrom: !Ref "AuroraDSN"
           LogConfiguration:
             LogDriver: awslogs
@@ -549,7 +547,7 @@ Resources:
           TargetGroupArn: !Ref TargetGroup
 
   # --------------------
-  # EdgeDB Load Balancer
+  # Gel Load Balancer
   # --------------------
 
   # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-elasticloadbalancingv2-targetgroup.html
@@ -561,7 +559,7 @@ Resources:
       HealthCheckProtocol: HTTPS
       UnhealthyThresholdCount: 2
       HealthyThresholdCount: 2
-      Name: !Sub "edb-${InstanceName}-tg"
+      Name: !Sub "gel-${InstanceName}-tg"
       Port: 5656
       Protocol: TCP
       TargetGroupAttributes:
@@ -587,7 +585,7 @@ Resources:
     DependsOn: VPCGatewayAttachment
     Properties:
       Type: network
-      Name: !Sub "edb-${InstanceName}-lb"
+      Name: !Sub "gel-${InstanceName}-lb"
       Scheme: internet-facing
       Subnets:
         - !Ref "SubnetAPublic"
@@ -596,7 +594,7 @@ Resources:
 Outputs:
 
   PublicHostname:
-    Description: "Host name of EdgeDB instance"
+    Description: "Host name of Gel instance"
     Value: !GetAtt LoadBalancer.DNSName
     
   SubnetAPublic:
