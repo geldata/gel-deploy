@@ -1,5 +1,5 @@
 [build]
-  image = "edgedb/edgedb"
+  image = "geldata/gel"
 
 [env]
   EDGEDB_SERVER_BACKEND_DSN_ENV = "DATABASE_URL"
